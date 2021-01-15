@@ -10,10 +10,7 @@ const {
 
 router
   .route("/")
-  .get(
-    // passport.authenticate("hostel", { session: false }),
-    createProfile
-  )
+  .patch(passport.authenticate("hostel", { session: false }), createProfile)
   .get(passport.authenticate("hostel", { session: false }), getProfile);
 
 router

@@ -13,6 +13,8 @@ const {
   searchInmates,
   studentById,
   vacateStudent,
+  payFee,
+  feeDetails,
 } = require("../controllers/students");
 
 router
@@ -37,6 +39,12 @@ router
 router
   .route("/vacate/:id/:room")
   .patch(passport.authenticate("hostel", { session: false }), vacateStudent);
+router
+  .route("/payfee/:id/")
+  .patch(passport.authenticate("hostel", { session: false }), payFee);
+router
+  .route("/fee")
+  .get(passport.authenticate("hostel", { session: false }), feeDetails);
 // router
 //   .route("/:id")
 //   .patch(passport.authenticate("hostel", { session: false }), editStudent);

@@ -83,6 +83,14 @@ const Students = new Schema({
   proof: {
     type: String,
   },
+  fee: [
+    {
+      date: Date,
+      month: String,
+      year: String,
+      amount: Number,
+    },
+  ],
   //   photoName: {
   //     type: String,
   //   },

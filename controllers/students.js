@@ -166,3 +166,58 @@ exports.vacateStudent = async (req, res) => {
     res.status(400).json({ success: false, err });
   }
 };
+
+exports.payFee = async (req, res) => {
+  try {
+    const fee = await Students.findByIdAndUpdate(
+      req.params.id,
+      {
+        $push: {
+          fee: {
+            date: req.body.date,
+            amount: req.body.amount,
+          },
+        },
+      },
+      { new: true }
+    );
+    res.status(200).json({ success: true, data: fee });
+  } catch (err) {
+    console.log(err);
+    res.status(400).json({ success: false, err });
+  }
+};
+
+exports.feeDetails = async (req, res) => {
+  console.log("chel");
+  try {
+    const paid = [];
+    const nonPaid = [];
+    const students = await Students.find({
+      $and: [{ hostel: req.user.id }, { doa: { $lte: req.body.date } }],
+    });
+    students.map((stu) => {
+      const arr = stu.fee.filter(
+        (item) => item.month === req.body.month && item.year === req.body.year
+      );
+      if (arr.length !== 0) {
+        paid.push(stu);
+      } else {
+        nonPaid.push(stu);
+      }
+      // stu.fee.map((f) => {
+      //   if (f.month === req.body.month && f.year === req.body.year) {
+      //     if (f.amount && f.amount > 0) {
+      //       paid.push(stu)
+      //     } else {
+
+      //     }
+      //   }
+      // })
+    });
+    res.status(200).json({ success: true, data: fee });
+  } catch (err) {
+    console.log(err);
+    res.status(400).json({ success: false, err });
+  }
+};
