@@ -66,7 +66,7 @@ exports.login = async (req, res) => {
     const { email, password } = req.body;
     const admin = await Hostel.findOne({ email });
     if (!admin) {
-      errors.email = "Admin not found";
+      errors.email = "Email not found";
       throw errors;
     }
     const isMatch = await bcrypt.compare(password, admin.password);
@@ -109,8 +109,8 @@ exports.sendVarificationMail = async (req, res) => {
     });
     const newLink =
       process.env.NODE_ENV === "production"
-        ? "http://hostelmanager.in/hostel/admin/verifylink/" + token
-        : "http://localhost:3000/hostel/admin/verifylink/" + token;
+        ? "http://hostelmanager.in/verifylink/" + token
+        : "http://localhost:3000/verifylink/" + token;
 
     let transporter = nodemailer.createTransport({
       service: "gmail",
@@ -165,8 +165,8 @@ exports.forgotPasswordMail = async (req, res) => {
     });
     const newLink =
       process.env.NODE_ENV === "production"
-        ? "http://hostelmanager.in/hostel/admin/resetpassword/" + token
-        : "http://localhost:3000/hostel/admin/resetpassword/" + token;
+        ? "http://hostelmanager.in/resetpassword/" + token
+        : "http://localhost:3000/resetpassword/" + token;
     // Create reusable transporter object using the default SMTP tranport
     let transporter = nodemailer.createTransport({
       service: "gmail",

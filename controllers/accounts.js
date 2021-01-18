@@ -129,7 +129,10 @@ exports.totalBalance = async (req, res) => {
     ]);
     res.status(200).json({
       success: true,
-      data: { ...inc[0], balance: inc[0].totalIncome - inc[0].totalExpense },
+      data: {
+        ...inc[0],
+        balance: inc[0] ? inc[0].totalIncome - inc[0].totalExpense : 0,
+      },
     });
   } catch (err) {
     console.log(err);

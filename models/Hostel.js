@@ -42,7 +42,7 @@ const Hostel = new mongoose.Schema({
       count: {
         type: Number,
         default: 0,
-      }, 
+      },
       available: {
         type: Number,
         default: 0,

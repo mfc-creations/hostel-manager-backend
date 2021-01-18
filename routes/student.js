@@ -4,6 +4,7 @@ const passport = require("passport");
 
 const {
   // newAdmissionNumber,
+  suggestAdmissionNumber,
   checkAdmissionNumber,
   addStudents,
   // editStudent,
@@ -26,6 +27,12 @@ router
     passport.authenticate("hostel", { session: false }),
     checkAdmissionNumber
   );
+router
+  .route("/adnumber")
+  .get(
+    passport.authenticate("hostel", { session: false }),
+    suggestAdmissionNumber
+  );
 
 router
   .route("/:field/:skip/:limit/:sort")
@@ -43,7 +50,7 @@ router
   .route("/payfee/:id/")
   .patch(passport.authenticate("hostel", { session: false }), payFee);
 router
-  .route("/fee")
+  .route("/fee/details")
   .get(passport.authenticate("hostel", { session: false }), feeDetails);
 // router
 //   .route("/:id")

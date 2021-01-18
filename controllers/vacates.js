@@ -14,7 +14,7 @@ exports.getStudents = async (req, res) => {
           .limit(parseInt(limit))
           .select({ doa: 1, name: 1, phone: 1, room: 1, admissionNumber: 1 })
           .lean(),
-        Students.find({ hostel: req.user.id }).countDocuments(),
+        Students.find({ hostel: req.user.id, inmate: false }).countDocuments(),
       ]);
       res.status(200).json({ success: true, data: { total, students } });
     } else {
@@ -26,7 +26,7 @@ exports.getStudents = async (req, res) => {
           .limit(parseInt(limit))
           .select({ doa: 1, name: 1, phone: 1, room: 1, admissionNumber: 1 })
           .lean(),
-        Students.find({ hostel: req.user.id }).countDocuments(),
+        Students.find({ hostel: req.user.id, inmate: false }).countDocuments(),
       ]);
       res.status(200).json({ success: true, data: { total, students } });
     }

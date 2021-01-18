@@ -14,7 +14,7 @@ const Students = new Schema({
     type: String,
   },
   admissionNumber: {
-    type: String,
+    type: Number,
   },
   doa: {
     type: String,

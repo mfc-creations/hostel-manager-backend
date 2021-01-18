@@ -1,9 +1,12 @@
 const { count } = require("../models/Students");
 const Students = require("../models/Students");
-const Hostel = require("../models/Students");
+const Hostel = require("../models/Hostel");
+const Accounts = require("../models/Accounts");
 
 exports.addStudents = async (req, res) => {
   try {
+    console.log("roooom");
+    console.log(req.body.room);
     const newStudent = new Students({
       hostel: req.user.id,
       name: req.body.name,
@@ -27,12 +30,19 @@ exports.addStudents = async (req, res) => {
       photo: req.body.photo,
       proof: req.body.proof,
     });
+    const { deposit } = req.body;
+    const newTr = new Accounts({
+      hostel: req.user.id,
+      date: req.body.doa,
+      item: req.body.name + " Deposit",
+      income: req.body.deposit,
+    });
 
     const [student, room] = await Promise.all([
       newStudent.save(),
       Hostel.findById(req.user.id).updateOne(
         {
-          "roomData.room": newStudent.room,
+          "roomData.room": req.body.room,
         },
         {
           $inc: {
@@ -41,8 +51,30 @@ exports.addStudents = async (req, res) => {
           },
         }
       ),
+      deposit && deposit > 0 && newTr.save(),
     ]);
+    console.log(rm);
     res.status(200).json({ success: true, data: student });
+  } catch (err) {
+    console.log(err);
+    res.status(400).json({ success: false, err });
+  }
+};
+
+exports.suggestAdmissionNumber = async (req, res) => {
+  try {
+    const adn = await Students.findOne({ hostel: req.user.id })
+      .sort({ admissionNumber: -1 })
+      .select({ admissionNumber: 1 })
+      .lean();
+    if (!adn) {
+      console.log("adn");
+
+      console.log(adn);
+      return res.status(200).json({ success: true, data: 1 });
+    }
+    const adNumber = parseInt(adn.admissionNumber) + 1;
+    return res.status(200).json({ success: true, data: adNumber });
   } catch (err) {
     console.log(err);
     res.status(400).json({ success: false, err });
@@ -53,9 +85,11 @@ exports.checkAdmissionNumber = async (req, res) => {
     console.log(typeof req.params.admissionNumber);
     console.log(req.params);
     const student = await Students.findOne({
+      hostel: req.user.id,
       admissionNumber: req.params.admissionNumber,
     });
     if (student) {
+      console.log(student);
       return res.status(200).json({ success: false, message: "Already exist" });
     }
     res.status(200).json({ success: true, message: "Not exist" });
@@ -77,7 +111,7 @@ exports.getStudents = async (req, res) => {
           .limit(parseInt(limit))
           .select({ doa: 1, name: 1, phone: 1, room: 1, admissionNumber: 1 })
           .lean(),
-        Students.find({ hostel: req.user.id }).countDocuments(),
+        Students.find({ hostel: req.user.id, inmate: true }).countDocuments(),
       ]);
       res.status(200).json({ success: true, data: { total, students } });
     } else {
@@ -89,7 +123,7 @@ exports.getStudents = async (req, res) => {
           .limit(parseInt(limit))
           .select({ doa: 1, name: 1, phone: 1, room: 1, admissionNumber: 1 })
           .lean(),
-        Students.find({ hostel: req.user.id }).countDocuments(),
+        Students.find({ hostel: req.user.id, inmate: true }).countDocuments(),
       ]);
       res.status(200).json({ success: true, data: { total, students } });
     }
@@ -194,8 +228,10 @@ exports.feeDetails = async (req, res) => {
     const paid = [];
     const nonPaid = [];
     const students = await Students.find({
-      $and: [{ hostel: req.user.id }, { doa: { $lte: req.body.date } }],
-    });
+      $and: [{ hostel: req.user.id }, { doa: { $gte: req.body.date } }],
+    })
+      .select({ doa: 1, name: 1, phone: 1, room: 1, admissionNumber: 1 })
+      .lean();
     students.map((stu) => {
       const arr = stu.fee.filter(
         (item) => item.month === req.body.month && item.year === req.body.year
@@ -215,7 +251,7 @@ exports.feeDetails = async (req, res) => {
       //   }
       // })
     });
-    res.status(200).json({ success: true, data: fee });
+    res.status(200).json({ success: true, data: { paid, nonPaid } });
   } catch (err) {
     console.log(err);
     res.status(400).json({ success: false, err });
